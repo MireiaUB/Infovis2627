@@ -104,18 +104,23 @@
   function initialise() {
     const grid = document.querySelector("#group-grid");
     const taskNumber = document.body.dataset.task;
-    const groups = Array.isArray(window.GROUPS) ? window.GROUPS : [];
+    const allGroups = Array.isArray(window.GROUPS) ? window.GROUPS : [];
+    const range = /^(\d+)-(\d+)$/.exec(document.body.dataset.groups || "");
+    const groups = range ? allGroups.slice(Number(range[1]) - 1, Number(range[2])) : allGroups;
 
     if (!grid || !taskNumber) return;
 
-    if (groups.length !== 10) {
+    if (groups.length === 0) {
       const message = document.createElement("p");
       message.className = "status-message";
-      message.textContent = "Configuration error: exactly 10 groups are required.";
+      message.textContent = "Configuration error: at least one group is required.";
       grid.replaceWith(message);
       return;
     }
 
+    const cols = Math.min(5, Math.ceil(groups.length / 2));
+    grid.style.setProperty("--cols", cols);
+    grid.style.setProperty("--rows", Math.ceil(groups.length / cols));
     groups.forEach((group) => grid.append(buildGroupCard(group, taskNumber)));
   }
 
